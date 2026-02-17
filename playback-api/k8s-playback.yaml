@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: playback-api
+  namespace: playback-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: playback-api
+  template:
+    metadata:
+      labels:
+        app: playback-api
+    spec:
+      containers:
+      - name: playback-api
+        image: us-west2-docker.pkg.dev/live-streaming-486620/live-streaming-repo/playback-api:v4
+        ports:
+        - containerPort: 8000
+        env:
+        - name: REDIS_HOST
+          value: "redis-store-master.redis-ns.svc.cluster.local"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: playback-service
+  namespace: playback-ns
+spec:
+  type: LoadBalancer
+  selector:
+    app: playback-api
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8000

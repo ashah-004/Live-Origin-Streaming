@@ -1,0 +1,68 @@
+body {
+  background-color: #141414;
+  color: #fff;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.app-container {
+  text-align: center;
+  width: 100%;
+  max-width: 1000px;
+  padding: 20px;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: #e50914; /* Netflix Red */
+}
+
+header p {
+  color: #808080;
+  margin-bottom: 2rem;
+}
+
+.status, .error {
+  padding: 20px;
+  font-size: 1.2rem;
+  border: 1px solid #333;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.error {
+  color: #ff4444;
+  border-color: #ff4444;
+}
+
+.stream-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 0 10px;
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.badge.live {
+  background-color: #e50914;
+  color: white;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}

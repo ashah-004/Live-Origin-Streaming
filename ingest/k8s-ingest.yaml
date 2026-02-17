@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingest-deployment
+  labels:
+    apps: ingest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ingest
+  template:
+    metadata:
+      labels:
+        app: ingest
+    spec:
+      serviceAccountName: ingest-sa
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                - redis
+                - cassandra
+            namespaces:
+            - redis-ns
+            - cassandra-ns
+            topologyKey: "kubernetes.io/hostname"
+
+      containers:
+      - name: ingest-container
+        image: us-west2-docker.pkg.dev/live-streaming-486620/live-streaming-repo/ingest-service:v12
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: shared-data
+          mountPath: /data/segments
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+      volumes:
+      - name: shared-data
+        emptyDir: {}

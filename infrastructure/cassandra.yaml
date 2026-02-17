@@ -1,0 +1,23 @@
+image:
+  registry: public.ecr.aws
+  repository: bitnami/cassandra
+  tag: latest
+
+global:
+  security:
+    allowInsecureImages: true
+
+dbUser:
+  user: cassandra
+  password: "netflix"
+
+replicaCount: 1
+
+persistence:
+  size: 5Gi
+
+resources:
+  requests:
+    memory: 1Gi
+  limits:
+    memory: 2Gi
