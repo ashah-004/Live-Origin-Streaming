@@ -24,26 +24,38 @@ PID_SYNC=$!
 
 # 3. Start Shaka Packager (Background)
 # We start this BEFORE FFmpeg so it is ready to catch the data coming out of the pipes.
+
+echo "📦 Starting Packager..."
+
+packager \
+    "input=$VIDEO_PIPE,stream=video,init_segment=$OUTPUT_DIR/video_init.mp4,segment_template=$OUTPUT_DIR/video_\$Number\$.m4s" \
+    "input=$AUDIO_PIPE,stream=audio,init_segment=$OUTPUT_DIR/audio_init.mp4,segment_template=$OUTPUT_DIR/audio_\$Number\$.m4s" \
+    --mpd_output "$OUTPUT_DIR/manifest.mpd" \
+    --segment_duration 2 \
+    --min_buffer_time 2\
+    --suggested_presentation_delay 3 \
+    --time_shift_buffer_depth 60 &
+
+PID_PACKAGER=$!
+
 echo "🎬 Starting FFmpeg Encoding..."
-ffmpeg -re -stream_loop -1 -i "input.mp4" \
-    -map 0:v:0 -c:v libx264 -profile:v main -sc_threshold 0 \
-    -r 30 -g 60 -keyint_min 60 \
-    -b:v 1000k -maxrate 1000k -bufsize 2000k -s 1280x720 \
+ffmpeg -re -fflags nobuffer -stream_loop -1 -i "input.mp4" \
+    -map 0:v:0 -c:v libx264 -profile:v main -preset superfast -tune zerolatency \
+    -r 30 -g 60 -keyint_min 60 -sc_threshold 0 \
+    -b:v 1000k -minrate 1000k -maxrate 1000k -bufsize 2000k -s 1280x720 \
     -f mpegts -y "$VIDEO_PIPE" \
     -map 0:a:0 -c:a aac -b:a 128k -ac 2 \
     -f mpegts -y "$AUDIO_PIPE" &
+    
 PID_FFMPEG=$!
 
 
-echo "📦 Starting Packager..."
-packager \
-  "input=$VIDEO_PIPE,stream=video,init_segment=$OUTPUT_DIR/video_init.mp4,segment_template=$OUTPUT_DIR/video_\$Number\$.m4s" \
-  "input=$AUDIO_PIPE,stream=audio,init_segment=$OUTPUT_DIR/audio_init.mp4,segment_template=$OUTPUT_DIR/audio_\$Number\$.m4s" \
-  --mpd_output "$OUTPUT_DIR/manifest.mpd" \
-  --segment_duration 2 \
-  --time_shift_buffer_depth 60 \
-  --preserved_segments_outside_live_window 10 &
-PID_PACKAGER=$!
+
+
+
+
+
+
 
 # 4. Start FFmpeg (The Engine)
 # We map video to pipe 1 and audio to pipe 2.
