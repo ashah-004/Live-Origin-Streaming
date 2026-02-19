@@ -62,7 +62,12 @@ except Exception as e:
 # init_audio_done = False
 # init_video_done = False
 
+LIVE_WINDOW_SECONDS = 180
+SEGMENT_DURATION = 2
+KEEP_LAST = LIVE_WINDOW_SECONDS // SEGMENT_DURATION
+
 # --- MAIN LOOP ---
+
 while True:
     try:
         # Wait for folder to be created by FFmpeg
@@ -130,9 +135,22 @@ while True:
             # We keep manifest.mpd and init.mp4 usually, but add them to processed set so we don't re-upload.
             if filename.endswith(".m4s"):
                 try:
-                    os.remove(local_path)
-                except OSError:
-                    pass # File might already be gone
+                    seg_num = int(filename.split('_')[1].split('.')[0])
+
+                    latest = r.get(f"stream: {SESSION_ID}:latest")
+                    if latest:
+                        latest = int(latest)
+
+                        if seg_num < latest - KEEP_LAST:
+                            os.remove(local_path)
+                            print(f"deleted old segment: {filename}")
+                        else:
+                            pass
+                    else:
+                        pass
+                except Exception as e:
+                    print(f"cleanup error for {filename}: {e}")
+                    # pass # File might already be gone
             # elif filename == "manifest.mpd":
             #         manifest_done = True
             #         print("✅ Manifest Locked.")
