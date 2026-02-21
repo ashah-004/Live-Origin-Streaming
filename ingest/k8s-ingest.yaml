@@ -32,7 +32,7 @@ spec:
 
       containers:
       - name: ingest-container
-        image: us-west2-docker.pkg.dev/live-streaming-486620/live-streaming-repo/ingest-service:v15
+        image: us-west2-docker.pkg.dev/live-streaming-486620/live-streaming-repo/ingest-service:v32
         imagePullPolicy: Always
         volumeMounts:
         - name: shared-data

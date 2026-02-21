@@ -18,7 +18,10 @@ RUN pip3 install --no-cache-dir \
     cassandra-driver
 
 # DOWNLOAD Packager directly from GitHub (Safe & Reliable)
-RUN wget https://github.com/shaka-project/shaka-packager/releases/download/v2.6.1/packager-linux-x64 -O /usr/bin/packager
+# DOWNLOAD latest Shaka Packager (v2.7.0+)
+RUN wget https://github.com/shaka-project/shaka-packager/releases/latest/download/packager-linux-x64 \
+    -O /usr/bin/packager && \
+    chmod +x /usr/bin/packager
 
 # Make it executable
 RUN chmod +x /usr/bin/packager
