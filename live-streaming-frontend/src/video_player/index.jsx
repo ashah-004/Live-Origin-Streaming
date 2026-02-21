@@ -39,20 +39,20 @@ const VideoPlayer = ({ manifestUrl }) => {
             player.configurationForLowLatency({
             streaming: {
                 lowLatencyMode: true,
-
+                stopFetchingOnPause: true,
                 // SAFETY VALUES
-                rebufferingGoal: 0.5,          // small but safe
-                bufferingGoal: 2,              // stay slightly behind live edge
-                bufferBehind: 30,
-                inaccurateManifestTolerance: 0, // strict for LL-DASH
-                updateIntervalSeconds: 0.1,    // MPD refresh every 250ms
+                rebufferingGoal: 4,          // small but safe
+                bufferingGoal: 6,              // stay slightly behind live edge
+                // bufferBehind: 30,
+                // inaccurateManifestTolerance: 0, // strict for LL-DASH
+                updateIntervalSeconds: 3,    // MPD refresh every 250ms
                 segmentPrefetchLimit: 1,        // fetch partial segments early
-                maxDisabledTime: 1,             // LL-DASH default
-                retryParameters: {
-                    maxAttempts: 3,
-                    baseDelay: 1000,
-                    backoffFactor: 2,
-                }
+                // maxDisabledTime: 1,             // LL-DASH default
+                // retryParameters: {
+                //     maxAttempts: 3,
+                //     baseDelay: 1000,
+                //     backoffFactor: 2,
+                // }
             },
 
             manifest: {

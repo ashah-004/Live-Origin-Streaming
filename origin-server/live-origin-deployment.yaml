@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: live-origin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: live-origin
+  template:
+    metadata:
+      labels:
+        app: live-origin
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: ingest
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: live-origin
+        image: us-west2-docker.pkg.dev/live-streaming-486620/live-streaming-repo/live-origin:v2
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: shared-data
+          mountPath: /data/segments
+      volumes:
+      - name: shared-data
+        emptyDir: {}
