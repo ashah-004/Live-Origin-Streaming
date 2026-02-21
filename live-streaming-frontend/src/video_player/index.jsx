@@ -1,23 +1,24 @@
-import React, {useRef, useEffect} from "react";
+import React, { useRef, useEffect } from "react";
 import shaka from 'shaka-player/dist/shaka-player.ui.js';
 import 'shaka-player/dist/controls.css';
 
-const VideoPlayer = ({manifestUrl}) => {
+const VideoPlayer = ({ manifestUrl }) => {
 
     const videoRef = useRef(null);
     const containerRef = useRef(null);
     const playerRef = useRef(null);
+    const uiref = useRef(null);
 
     useEffect(() => {
         let player;
         let ui;
 
-        const initPlayer = async() => {
-            if(!videoRef.current || !containerRef.current) return;
+        const initPlayer = async () => {
+            if (!videoRef.current || !containerRef.current) return;
 
             shaka.polyfill.installAll();
 
-            if(!shaka.Player.isBrowserSupported()){
+            if (!shaka.Player.isBrowserSupported()) {
                 console.error('Browser not supported by shaka player.');
                 return;
             }
@@ -28,17 +29,46 @@ const VideoPlayer = ({manifestUrl}) => {
             playerRef.current = player;
 
             const ui = new shaka.ui.Overlay(player, containerRef.current, videoRef.current);
+            uiref.current = ui;
 
             ui.configure({
                 'controlPanelElements': ['play_pause', 'time_and_duration', 'spacer', 'mute', 'fullscreen', 'overflow_menu']
             });
 
+
+            player.configurationForLowLatency({
+            streaming: {
+                lowLatencyMode: true,
+
+                // SAFETY VALUES
+                rebufferingGoal: 0.5,          // small but safe
+                bufferingGoal: 2,              // stay slightly behind live edge
+                bufferBehind: 30,
+                inaccurateManifestTolerance: 0, // strict for LL-DASH
+                updateIntervalSeconds: 0.1,    // MPD refresh every 250ms
+                segmentPrefetchLimit: 1,        // fetch partial segments early
+                maxDisabledTime: 1,             // LL-DASH default
+                retryParameters: {
+                    maxAttempts: 3,
+                    baseDelay: 1000,
+                    backoffFactor: 2,
+                }
+            },
+
+            manifest: {
+                dash: {
+                clockSyncUri: "https://time.akamai.com/?iso",
+                autoCorrectDrift: true,       // IMPORTANT for stability
+                ignoreMinBufferTime: true,
+                },
+            },
+            });
             player.addEventListener('error', (event) => {
                 if (event.detail.code === 7002) return;
                 console.error('Shaka Player Error Code:', event.detail.code, event.detail);
             });
 
-            try{
+            try {
                 console.log("Loading Manifest:", manifestUrl);
                 await player.load(manifestUrl);
                 console.log('stream loaded successfully!');
@@ -47,7 +77,7 @@ const VideoPlayer = ({manifestUrl}) => {
             }
         };
 
-        if(manifestUrl){
+        if (manifestUrl) {
             initPlayer();
         }
 
@@ -59,6 +89,7 @@ const VideoPlayer = ({manifestUrl}) => {
             if (player) {
                 player.destroy(); // Then destroy player
             }
+            uiref.current = null;
             playerRef.current = null;
         };
 
@@ -75,10 +106,10 @@ const VideoPlayer = ({manifestUrl}) => {
         >
             <video
                 ref={videoRef}
-                style={{width: '100%', height: '100%'}}
-                poster="https://www.google.com/imgres?q=loading%20&imgurl=https%3A%2F%2Fimg.freepik.com%2Fpremium-vector%2Fvector-loading-different-round-icon_635054-349.jpg%3Fsemt%3Dais_user_personalization%26w%3D740%26q%3D80&imgrefurl=https%3A%2F%2Fwww.freepik.com%2Ffree-photos-vectors%2Floading-line&docid=JwSRGt2SfLIWPM&tbnid=EqdcnPdg6YxR1M&vet=12ahUKEwiT-M_LxNKSAxXbEDQIHZJ6NmEQnPAOegQIcBAB..i&w=740&h=740&hcb=2&ved=2ahUKEwiT-M_LxNKSAxXbEDQIHZJ6NmEQnPAOegQIcBAB"
+                style={{ width: '100%', height: '100%' }}
                 autoPlay
                 muted
+                playsInline
             />
         </div>
     );
