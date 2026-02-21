@@ -32,7 +32,7 @@ spec:
 
       containers:
       - name: ingest-container
-        image: us-west2-docker.pkg.dev/live-streaming-486620/live-streaming-repo/ingest-service:v32
+        image: us-west2-docker.pkg.dev/live-streaming-486620/live-streaming-repo/ingest-service:v37
         imagePullPolicy: Always
         volumeMounts:
         - name: shared-data
@@ -44,19 +44,13 @@ spec:
           limits:
             memory: "1Gi"
             cpu: "1000m"
-      - name: live-origin-nginx
-        image: nginx:1.25-alpine
-        ports:
-        - containerPort: 8080
-        volumeMounts:
+      - name: live-origin 
+        image: us-west2-docker.pkg.dev/live-streaming-486620/live-streaming-repo/live-origin:v2 
+        ports: 
+        - containerPort: 8080 
+        volumeMounts: 
         - name: shared-data
           mountPath: /data/segments
-        - name: nginx-conf
-          mountPath: /etc/nginx/nginx.conf
-          subPath: nginx.conf
       volumes:
       - name: shared-data
         emptyDir: {}
-      - name: nginx-conf
-        configMap:
-          name: live-origin-nginx-config
