@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: playback-api
-        image: us-west2-docker.pkg.dev/live-streaming-486620/live-streaming-repo/playback-api:v9
+        image: us-west2-docker.pkg.dev/live-streaming-486620/live-streaming-repo/playback-api:v10
         ports:
         - containerPort: 8000
         env:

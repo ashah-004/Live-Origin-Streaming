@@ -46,6 +46,16 @@ data:
           
           add_header Cache-Control "no-store, must-revalidate" always;
           expires -1;
+
+          sendfile off;
+          aio on;
+          directio 512;
+          tcp_nopush on;
+          tcp_nodelay on;
+
+          proxy_buffering off;
+          proxy_request_buffering off;
+          proxy_cache off;
         }
 
         location ~ init\.mp4$ {

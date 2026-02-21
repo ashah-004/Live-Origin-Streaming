@@ -38,7 +38,7 @@ def get_live_stream():
         
         session_id = active_id.decode("utf-8")
 
-        manifest_url = f"http://34.111.194.162/{session_id}/manifest.mpd"
+        manifest_url = f"http://34.102.175.159/{session_id}/manifest.mpd"
 
         return {
             "session_id": session_id,

@@ -30,10 +30,10 @@ packager \
     --mpd_output "$OUTPUT_DIR/manifest.mpd" \
     --segment_duration 2 \
     --low_latency_dash_mode=true \
-    --minimum_update_period 1 \
-    --suggested_presentation_delay 3 \
-    --time_shift_buffer_depth 60 \
-    --preserved_segments_outside_live_window 4 \
+    --minimum_update_period 5 \
+    --suggested_presentation_delay 5 \
+    --time_shift_buffer_depth 120 \
+    --preserved_segments_outside_live_window 30 \
     --utc_timings "urn:mpeg:dash:utc:http-xsdate:2014=https://time.akamai.com/?iso" \
   > /tmp/packager_$SESSION_ID.log 2>&1 &
 PID_PACKAGER=$!
@@ -41,11 +41,13 @@ PID_PACKAGER=$!
 # 4. Start FFmpeg (Engine)
 echo "🎬 Starting FFmpeg Encoding..."
 
-ffmpeg -re -stream_loop -1 -i "input.mp4" \
+ffmpeg -re -stream_loop -1 -fflags +genpts -i "input.mp4" \
   -use_wallclock_as_timestamps 1 \
   -map 0:v:0 -c:v libx264 -preset veryfast -tune zerolatency \
   -r 30 -g 60 -keyint_min 60 -sc_threshold 0 \
-  -b:v 1200k -maxrate 1200k -bufsize 2400k \
+  -b:v 1200k -maxrate 1200k -bufsize 3600k \
+  -vsync 1 \
+  -muxdelay 0 -muxpreload 0 \
   -f mp4 -movflags +frag_keyframe+empty_moov+default_base_moof \
   -y "$VIDEO_PIPE" \
   -map 0:a:0 -c:a aac -b:a 128k -ac 2 \
